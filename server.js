@@ -1,23 +1,30 @@
-const fastify = require('fastify')({ logger: true });
-const fs = require('fs');
+import fastify from 'fastify';
+import { access, constants, fstat } from 'fs';
+import { readFile } from 'fs/promises';
 
 const port = 3000;
+const responsePath = './data/response.txt'
 
-fastify.get('/', async (request, reply) => {
-  await fs.readFile('./data/response.txt', function (err, data) {
+const server = fastify({logger: true});
+
+server.get('/', (request, reply) => {
+  access(responsePath, constants.W_OK, async (err) => {
     if (err) {
-      throw err;
+      const data = await readFile('./data/response.txt')
+      reply.code(200);
+      reply.send({ hello: data.toString().trim() });
+    } else {
+      reply.code(400);
+      reply.send({ error: "response.txt should not be writable" });
     }
-    reply.send({ hello: data.toString().trim() });
-  });
-  return reply;
+  })
 });
 
 const start = async () => {
   try {
-    await fastify.listen(port)
+    await server.listen(port)
   } catch (err) {
-    fastify.log.error(err)
+    server.log.error(err)
     process.exit(1)
   }
 }
