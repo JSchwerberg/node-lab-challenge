@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "fastify": "^3.21.6",
+    "fastify": "^3.29.4",
     "fs": "^0.0.1-security"
   }
 }
